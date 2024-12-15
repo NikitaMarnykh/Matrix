@@ -81,6 +81,8 @@ class Matrix:
 
     def __add__(self, other: 'Matrix') -> 'Matrix':
         """Операция сложения двух матриц."""
+        if not isinstance(other, Matrix):
+            raise TypeError("'other' can be only Matrix")
         if self.__rows != other.__rows or self.__cols != other.__cols:
             raise ValueError('Matrices must be of the same dimensions for addition.')
         new_matrix = Matrix(self.__rows, self.__cols)
@@ -94,6 +96,8 @@ class Matrix:
 
     def __iadd__(self, other: 'Matrix') -> 'Matrix':
         """Присваивающее сложение."""
+        if not isinstance(other, Matrix):
+            raise TypeError("'other' can be only Matrix")
         if self.__rows != other.__rows or self.__cols != other.__cols:
             raise ValueError('Matrices must be of the same dimensions for addition.')
         for i in range(self.__rows):
@@ -102,6 +106,8 @@ class Matrix:
 
     def __sub__(self, other: 'Matrix') -> 'Matrix':
         """Операция вычитания двух матриц."""
+        if not isinstance(other, Matrix):
+            raise TypeError("'other' can be only Matrix")
         if self.__rows != other.__rows or self.__cols != other.__cols:
             raise ValueError('Matrices must be of the same dimensions for subtraction.')
         new_matrix = Matrix(self.__rows, self.__cols)
@@ -109,12 +115,13 @@ class Matrix:
             new_matrix[i] = self[i] - other[i]
         return new_matrix
 
-    def __rsub__(self, other: Union[int, float]) -> 'Matrix':
-        """Операция вычитания: число - матрица."""
+    def __rsub__(self, other: 'Matrix') -> 'Matrix':
         return -self + other
 
     def __isub__(self, other: 'Matrix') -> 'Matrix':
         """Присваивающее вычитание."""
+        if not isinstance(other, Matrix):
+            raise TypeError("'other' can be only Matrix")
         if self.__rows != other.__rows or self.__cols != other.__cols:
             raise ValueError('Matrices must be of the same dimensions for subtraction.')
         for i in range(self.__rows):
@@ -155,7 +162,9 @@ class Matrix:
 
     def __neg__(self) -> 'Matrix':
         """Оператор отрицания."""
-        return -1 * self
+        for i in range(self.__rows):
+            self.__matrix[i] = -self.__matrix[i]
+        return self
 
     def __truediv__(self, other: Union[int, float, Vector]) -> 'Matrix':
         """Операция деления матрицы на число или вектор."""
@@ -186,8 +195,23 @@ class Matrix:
         return self.__rows, self.__cols
 
     def __str__(self) -> str:
-        """Возвращает строковое представление матрицы."""
-        return "\n".join(" ".join(str(self[i][j]) for j in range(self.__cols)) for i in range(self.__rows))
+        """
+
+        Return: строковое представление матрицы
+
+        """
+        # Находим максимальную ширину для установки отступа
+        max_width: int = max(
+            len(str(self.__matrix[row][col]))
+            for row in range(self.__rows)
+            for col in range(self.__cols)
+        )
+
+        # Форматируем строку с фиксированной шириной
+        return '\n'.join(
+            ' '.join(f'{str(elem):>{max_width}}' for elem in row)
+            for row in self.__matrix
+        )
 
     def __repr__(self):
         """Возвращает строковое представление матрицы."""
